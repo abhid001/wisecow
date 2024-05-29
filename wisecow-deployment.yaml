@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wisecow
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wisecow
+  template:
+    metadata:
+      labels:
+        app: wisecow
+    spec:
+      containers:
+      - name: wisecow
+        image: wisecow:latest
+        ports:
+        - containerPort: 8000
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: tls-certs
+          mountPath: /etc/nginx/certs
+          readOnly: true
+      volumes:
+      - name: tls-certs
+        configMap:
+          name: wisecow-tls
+          items:
+          - key: ssl_certificate.crt
+            path: ssl_certificate.crt
+          - key: ssl_certificate.key
+            path: ssl_certificate.key
